@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<!-- saved from url=(0022)http://127.0.0.1:5000/ -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Classroom Attendance</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 25px;
+            background: #f5f5f5;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .details {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .details p {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background: #222;
+            color: white;
+            padding: 15px;
+            font-size: 18px;
+        }
+
+        td {
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #ddd;
+            font-size: 17px;
+        }
+
+        button {
+            border: none;
+            padding: 10px 18px;
+            margin: 3px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .present {
+            background: green;
+            color: white;
+        }
+
+        .absent {
+            background: #d32f2f;
+            color: white;
+        }
+
+        .selected {
+            box-shadow: 0 0 0 3px #000;
+        }
+
+        .submit-area {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        #submitBtn {
+            background: #1976d2;
+            color: white;
+            font-size: 18px;
+            padding: 14px 30px;
+        }
+
+        #undoBtn {
+            position: fixed;
+            right: 25px;
+            bottom: 25px;
+            background: #ff9800;
+            color: white;
+            font-size: 16px;
+        }
+
+        #message {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Smart Classroom Attendance System</h1>
+
+    <div class="details">
+        <p><b>Date:</b> 21-09-2026</p>
+        <p><b>Subject:</b> Database Management Systems</p>
+        <p><b>Faculty:</b> Dr. Kumar</p>
+        <p><b>Time:</b> 09:00 AM - 10:00 AM</p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Roll No</th>
+                <th>Student Name</th>
+                <th>Attendance</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            <tr>
+                <td>CSE001</td>
+                <td>Rahul</td>
+                <td>
+                    <button class="present" onclick="markAttendance(1, 'PRESENT', this)">
+                        Present
+                    </button>
+
+                    <button class="absent" onclick="markAttendance(1, 'ABSENT', this)">
+                        Absent
+                    </button>
+                </td>
+            </tr>
+
+            <tr>
+                <td>CSE002</td>
+                <td>Priya</td>
+                <td>
+                    <button class="present" onclick="markAttendance(2, 'PRESENT', this)">
+                        Present
+                    </button>
+
+                    <button class="absent" onclick="markAttendance(2, 'ABSENT', this)">
+                        Absent
+                    </button>
+                </td>
+            </tr>
+
+            <tr>
+                <td>CSE003</td>
+                <td>Arun</td>
+                <td>
+                    <button class="present" onclick="markAttendance(3, 'PRESENT', this)">
+                        Present
+                    </button>
+
+                    <button class="absent" onclick="markAttendance(3, 'ABSENT', this)">
+                        Absent
+                    </button>
+                </td>
+            </tr>
+
+            <tr>
+                <td>CSE004</td>
+                <td>Sneha</td>
+                <td>
+                    <button class="present" onclick="markAttendance(4, 'PRESENT', this)">
+                        Present
+                    </button>
+
+                    <button class="absent" onclick="markAttendance(4, 'ABSENT', this)">
+                        Absent
+                    </button>
+                </td>
+            </tr>
+
+            <tr>
+                <td>CSE005</td>
+                <td>Kiran</td>
+                <td>
+                    <button class="present" onclick="markAttendance(5, 'PRESENT', this)">
+                        Present
+                    </button>
+
+                    <button class="absent" onclick="markAttendance(5, 'ABSENT', this)">
+                        Absent
+                    </button>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+
+    <div class="submit-area">
+
+        <button id="submitBtn" onclick="submitAttendance()">
+            SUBMIT ATTENDANCE
+        </button>
+
+    </div>
+
+    <button id="undoBtn" onclick="undoLast()">
+        ↶ Undo
+    </button>
+
+    <div id="message"></div>
+
+
+    <script>
+
+        // Store attendance here
+        let attendance = {};
+
+        // Store previous action for Undo
+        let lastAction = null;
+
+
+        // Mark Present / Absent
+        function markAttendance(studentId, status, button) {
+
+            let oldStatus = attendance[studentId] || null;
+
+            attendance[studentId] = status;
+
+            lastAction = {
+                studentId: studentId,
+                oldStatus: oldStatus
+            };
+
+            // Remove selection from both buttons in this row
+            let row = button.parentElement;
+
+            let buttons = row.querySelectorAll("button");
+
+            buttons.forEach(function (btn) {
+                btn.classList.remove("selected");
+            });
+
+            // Highlight selected button
+            button.classList.add("selected");
+        }
+
+
+        // Undo last attendance selection
+        function undoLast() {
+
+            if (lastAction === null) {
+                alert("Nothing to undo.");
+                return;
+            }
+
+            if (lastAction.oldStatus === null) {
+                delete attendance[lastAction.studentId];
+            } else {
+                attendance[lastAction.studentId] = lastAction.oldStatus;
+            }
+
+            location.reload();
+        }
+
+
+        // Submit attendance
+        async function submitAttendance() {
+
+            // Check that all 5 students have been marked
+            if (Object.keys(attendance).length !== 5) {
+
+                alert("Please mark attendance for all students first.");
+
+                return;
+            }
+
+
+            // Create records for Flask
+            let records = [];
+
+            for (let studentId = 1; studentId <= 5; studentId++) {
+
+                records.push({
+                    student_id: studentId,
+                    status: attendance[studentId]
+                });
+
+            }
+
+
+            // Disable button while submitting
+            let submitButton = document.getElementById("submitBtn");
+
+            submitButton.disabled = true;
+
+            submitButton.innerText = "Submitting...";
+
+
+            try {
+
+                let response = await fetch("/submit-attendance", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        records: records
+                    })
+
+                });
+
+
+                let result = await response.json();
+
+
+                if (response.ok && result.success) {
+
+                    document.getElementById("message").innerText =
+                        "Attendance submitted and locked successfully.";
+
+                    alert("Attendance submitted successfully!");
+
+                    // Disable all attendance buttons
+                    document.querySelectorAll("table button").for</script></body></html>
